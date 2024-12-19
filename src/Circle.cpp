@@ -1,4 +1,5 @@
 #include "Circle.hpp"
+#include <variant>
 #define PI 3.14159265358979323846264338327950288
 
 // Default constructor
@@ -55,6 +56,3 @@ void Circle::createVertices() {
     }
 }
 
-void Circle::updatePosition() {
-
-}

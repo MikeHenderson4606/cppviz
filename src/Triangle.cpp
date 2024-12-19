@@ -25,7 +25,3 @@ void Triangle::createVertices() {
         2, 1, 0
     };
 }
-
-void Triangle::updatePosition() {
-
-}

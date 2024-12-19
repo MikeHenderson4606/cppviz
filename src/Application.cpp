@@ -4,18 +4,17 @@
 #include "Triangle.hpp"
 #include "Line.hpp"
 #include "Circle.hpp"
-
-// glm libraries
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtc/matrix_transform.hpp> 
-#include <glm/gtx/string_cast.hpp>
+#include "Simulation.hpp"
+#include "FluidSimulation.hpp"
 
 // Standard cpp libaries
 #include <iostream>
 
 // Constructor
 Application::Application(SDLGraphicsProgram& prog)
-    : program(prog) { }
+    : program(prog) { 
+    camera = new Camera();
+}
 
 // Destructor
 Application::~Application() {
@@ -214,6 +213,11 @@ GLuint CreateDefaultShader() {
 void Application::PreLoop() {
     defaultShader = CreateDefaultShader();
 
+    // Render all simulations' initial states
+    for (Simulation* sim : simulations) {
+        sim->Render();
+    }
+
     // Debug shader creation
     GLint success;
     glGetProgramiv(defaultShader, GL_LINK_STATUS, &success);
@@ -247,6 +251,10 @@ void Application::AddObject(IObject* object) {
     }
 }
 
+void Application::AddSimulation(Simulation* sim) {
+    simulations.push_back(sim);
+}
+
 
 void Application::HandleInput(SDL_Event e) {
 
@@ -271,7 +279,9 @@ void Application::HandleInput(SDL_Event e) {
 }
 
 void Application::Update() {
-
+    for (Simulation* sim : simulations) {
+        sim->Update();
+    }
 }
 
 // Adjusts the given indices by the given factor
@@ -322,7 +332,7 @@ void Application::Render() {
         circleVertices.insert(circleVertices.end(), circles.at(i)->vertices.begin(), circles.at(i)->vertices.end());
         // Add the appropriate indices to the list
         std::vector<GLuint> c_indices = circles.at(i)->ibo;
-        c_indices = AdjustIndices(c_indices, i * (circleVertices.size() / (6 * circles.size())));
+        c_indices = AdjustIndices(c_indices, i * 33);
         // Update indices
         circleIndices.insert(circleIndices.end(), c_indices.begin(), c_indices.end());
 
@@ -339,7 +349,7 @@ void Application::Render() {
     circleIndices.clear();
 }
 
-void SendMVP(SDLGraphicsProgram &prog, GLuint &shader) {
+void SendMVP(SDLGraphicsProgram &prog, GLuint &shader, Camera* camera) {
     // Create the perspective matrix
     glm::mat4 perspective = glm::perspective(
         glm::radians(45.0f),
@@ -350,7 +360,7 @@ void SendMVP(SDLGraphicsProgram &prog, GLuint &shader) {
     // Create model matrix
     glm::mat4 model = glm::mat4(1.0f);
     // Create view matrix
-    glm::mat4 view = glm::mat4(1.0f);
+    glm::mat4 view = camera->GetViewMatrix();
     // Create the MVP matrix
     glm::mat4 MVP = perspective * view * model;
     // Find MVP's location in the shader
@@ -366,7 +376,7 @@ void SendMVP(SDLGraphicsProgram &prog, GLuint &shader) {
 void Application::Draw(std::vector<GLint> &indices) {
     glUseProgram(defaultShader);
 
-    SendMVP(program, defaultShader);
+    SendMVP(program, defaultShader, camera);
 
     glDrawElements(
         GL_TRIANGLES,

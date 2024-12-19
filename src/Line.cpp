@@ -56,7 +56,3 @@ void Line::createVertices() {
         3, 1, 2
     };
 }
-
-void Line::updatePosition() {
-
-}

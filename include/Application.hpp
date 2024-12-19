@@ -4,6 +4,13 @@
 #include "Triangle.hpp"
 #include "Line.hpp"
 #include "Circle.hpp"
+#include "Camera.hpp"
+
+// glm libraries
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtc/matrix_transform.hpp> 
+#include <glm/gtx/string_cast.hpp>
+
 
 // C++ Standard Libraries
 #include <iostream>
@@ -11,6 +18,8 @@
 #include <string>
 #include <sstream>
 #include <fstream>
+
+class Simulation;
 
 class Application{
 public:
@@ -24,6 +33,8 @@ public:
     void PreLoop();
     // Adds objects to the scene
     void AddObject(IObject* object);
+    // Adds a simulation to the scene
+    void AddSimulation(Simulation* sim);
     // Handles input
     void HandleInput(SDL_Event e);
     // Updates objects
@@ -43,6 +54,12 @@ private:
     GLuint vbo = 0;
     // A default shader
     GLuint defaultShader;
+
+    // CAMERA
+    Camera* camera;
+
+    // SIMULATIONS
+    std::vector<Simulation*> simulations;
 
     // RENDER ALL OBJECTS AT ONCE
     // Triangles in scene

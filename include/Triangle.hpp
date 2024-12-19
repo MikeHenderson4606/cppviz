@@ -15,7 +15,19 @@ public:
     // Creates the vertices for a triangle
     void createVertices();
     // Changes the vertices of that triangle
-    void updatePosition();
+    void updatePosition(const IPosition& position) override {
+        if (std::holds_alternative<TrianglePosition>(position)) {
+            const TrianglePosition& trianglePos = std::get<TrianglePosition>(position);
+            pos1 = trianglePos.pos1;
+            pos2 = trianglePos.pos2;
+            pos3 = trianglePos.pos3;
+
+            createVertices();
+            std::cout << "Triangle position updated.\n";
+        } else {
+            std::cerr << "Error: Invalid position type for Triangle.\n";
+        }
+    }
 
 private:
     // First position

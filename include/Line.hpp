@@ -14,10 +14,21 @@ public:
     // Destructor
     ~Line();
 
-    // Creates the vertices for a triangle
+    // Creates the vertices for a line
     void createVertices();
-    // Changes the vertices of that triangle
-    void updatePosition();
+    // Changes the vertices of that line
+    void updatePosition(const IPosition& u_position) override {
+        if (std::holds_alternative<LinePosition>(u_position)) {
+            const LinePosition& linePos = std::get<LinePosition>(u_position);
+            c_start = linePos.start;
+            c_end = linePos.end;
+
+            createVertices();
+            std::cout << "Line position updated.\n";
+        } else {
+            std::cerr << "Error: Invalid position type for Line.\n";
+        }
+    }
 
 private:
     // Starting position of the line

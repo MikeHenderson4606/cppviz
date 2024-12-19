@@ -11,6 +11,7 @@
 // Functionality that we created
 #include "SDLGraphicsProgram.hpp"
 #include "Application.hpp"
+#include "FluidSimulation.hpp"
 #include <iostream>
 
 // Create an instance of an object for a SDLGraphicsProgram
@@ -78,30 +79,48 @@ int main(int argc, char* argv[]){
 
 
     IObject* circle = new Circle(
-        glm::vec3(1.0f, 1.0f, -10.0f),
-        1.0f
+        glm::vec3(1.0f, 1.0f, 0.0f),
+        0.1f
     );
     IObject* circle2 = new Circle(
-        glm::vec3(-1.0f, 1.0f, -10.0f),
-        0.5f,
+        glm::vec3(-0.5f, 0.5f, 0.0f),
+        0.1f
+    );
+    IObject* circle3 = new Circle(
+        glm::vec3(-1.0f, 1.0f, 0.0f),
+        0.1f
+    );
+    IObject* circle4 = new Circle(
+        glm::vec3(-0.5f, -0.5f, 0.0f),
+        0.1f
+    );
+    IObject* circle5 = new Circle(
+        glm::vec3(-1.0f, -1.0f, 0.0f),
+        0.1f,
         glm::vec3(0.2, 0.0, 0.6)
     );
     IObject* line = new Line(
-        glm::vec3(-3.0f, 0.0f, -10.0f),
-        glm::vec3(3.0f, 0.0f, -10.0f),
+        glm::vec3(-3.0f, 0.0f, 0.0f),
+        glm::vec3(3.0f, 0.0f, 0.0f),
         glm::vec3(1.0f, 1.0f, 1.0f),
         0.05f
     );
     IObject* line2 = new Line(
-        glm::vec3(0.0f, 3.0f, -10.0f),
-        glm::vec3(0.0f, -3.0f, -10.0f),
+        glm::vec3(0.0f, 3.0f, 0.0f),
+        glm::vec3(0.0f, -3.0f, 0.0f),
         glm::vec3(1.0f, 1.0f, 1.0f),
         0.05f
     );
-    gApplication.AddObject(line);
-    gApplication.AddObject(line2);
-    gApplication.AddObject(circle);
-    gApplication.AddObject(circle2);
+    // gApplication.AddObject(line);
+    // gApplication.AddObject(line2);
+    // gApplication.AddObject(circle);
+    // gApplication.AddObject(circle2);
+    // gApplication.AddObject(circle3);
+    // gApplication.AddObject(circle4);
+    // gApplication.AddObject(circle5);
+    Simulation* fluidSim = new FluidSimulation(2.4, 2.4, 0.5);
+    fluidSim->AddApplicationToSimulation(&gApplication);
+    gApplication.AddSimulation(fluidSim);
 
 
     /* ---------------------------------------------------------------------------------------
@@ -113,9 +132,9 @@ int main(int argc, char* argv[]){
     // When our program ends, it will exit scope, the
     // destructor will then be called and clean up the program.
 
-    delete circle;
-    delete circle2;
-    delete line;
-    delete line2;
+    // delete circle;
+    // delete circle2;
+    // delete line;
+    // delete line2;
     return 0;
 }
