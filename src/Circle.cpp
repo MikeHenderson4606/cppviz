@@ -1,5 +1,7 @@
 #include "Circle.hpp"
 #include <variant>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/string_cast.hpp>
 #define PI 3.14159265358979323846264338327950288
 
 // Default constructor
@@ -24,6 +26,7 @@ void Circle::createVertices() {
     // Determine the circle quality
     int circleQuality = 30;
     GLfloat interval = (2 * PI) / circleQuality;
+    ibo.clear();
 
     // Add the center position with color
     vertices.push_back(c_center.x);
@@ -53,6 +56,19 @@ void Circle::createVertices() {
             ibo.push_back(i - 1);    // Segment 1
             ibo.push_back(i);        // Segment 2
         }
+    }
+}
+
+void Circle::updatePosition(const IPosition& newPosition) {
+    if (std::holds_alternative<CirclePosition>(newPosition)) {
+        const CirclePosition circlePos = std::get<CirclePosition>(newPosition);
+        //std::cout << glm::to_string(circlePos.center) << std::endl;
+        c_center = circlePos.center;
+
+        vertices.clear();
+        createVertices();
+    } else {
+        std::cerr << "Error: Invalid position type for Circle.\n";
     }
 }
 

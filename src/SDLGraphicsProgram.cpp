@@ -96,6 +96,9 @@ void SDLGraphicsProgram::SDLCreateOpenGLWindow(){
 		// We want to request a double buffer for smooth updating.
 		SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 		SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+        // Enable multisampling (4x)
+        SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1); // 1 buffer
+        SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);  // 4x samples
 
 		//Create an SDL window that is compatible with OpenGL
 		m_window = SDL_CreateWindow( "Mathematical Visualizer",
@@ -110,7 +113,6 @@ void SDLGraphicsProgram::SDLCreateOpenGLWindow(){
 			errorStream << "Window could not be created! SDL Error: " << SDL_GetError() << "\n";
 			success = false;
 		}
-
   	}
 
     // If initialization did not work, then print out a list of errors in the constructor.
@@ -198,6 +200,8 @@ void SDLGraphicsProgram::SetDefaultOpenGLState(){
         glEnable(GL_DEPTH_TEST);
         // What we are doing, is telling OpenGL to enable textures.
         glEnable(GL_TEXTURE_2D); 
+        // Enable multisampling
+        glEnable(GL_MULTISAMPLE);
         // Set the clear color
         // This is the color the back of the screen will be cleared to.
         // The range is between 0.0f and 1.0f for the 

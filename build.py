@@ -21,7 +21,7 @@ if platform.system()=="Linux":
     LIBRARIES="-lSDL2 -ldl"
 elif platform.system()=="Darwin":
     ARGUMENTS="-D MAC" # -D is a #define sent to the preprocessor.
-    INCLUDE_DIR="-I ./include/ -I/Library/Frameworks/SDL2.framework/Headers -I./../../common/thirdparty/old/glm"
+    INCLUDE_DIR="-I ./include/ -I/opt/homebrew/include/SDL2 -I./../../common/thirdparty/old/glm"
     LIBRARIES="-F/Library/Frameworks -framework SDL2"
 elif platform.system()=="Windows":
     ARGUMENTS="-D MINGW -static-libgcc -static-libstdc++" 
@@ -32,7 +32,7 @@ elif platform.system()=="Windows":
 
 # (3)====================== Building the Executable ========================== #
 # Build a string of our compile commands that we run in the terminal
-compileString=COMPILER+" "+ARGUMENTS+" "+SOURCE+" -o "+EXECUTABLE+" "+" "+INCLUDE_DIR+" "+LIBRARIES
+compileString=COMPILER+" "+ARGUMENTS+" "+SOURCE+" -o "+EXECUTABLE+" "+" "+INCLUDE_DIR+" "+LIBRARIES+" -fsanitize=address"
 # Print out the compile string
 # This is the command you can type
 print("===============================================================================")

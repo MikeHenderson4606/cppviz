@@ -15,7 +15,7 @@ public:
     ~Line();
 
     // Creates the vertices for a line
-    void createVertices();
+    void createVertices() override;
     // Changes the vertices of that line
     void updatePosition(const IPosition& u_position) override {
         if (std::holds_alternative<LinePosition>(u_position)) {

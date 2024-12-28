@@ -18,6 +18,8 @@
 #include <string>
 #include <sstream>
 #include <fstream>
+#include <algorithm>
+#include <thread>
 
 class Simulation;
 
@@ -31,8 +33,10 @@ public:
 
     // Pre loop
     void PreLoop();
+    // Gets the compute shader
+    GLuint& getComputeShader();
     // Adds objects to the scene
-    void AddObject(IObject* object);
+    void AddObject(std::shared_ptr<IObject> object);
     // Adds a simulation to the scene
     void AddSimulation(Simulation* sim);
     // Handles input
@@ -54,6 +58,8 @@ private:
     GLuint vbo = 0;
     // A default shader
     GLuint defaultShader;
+    // The compute shader for quick rendering
+    GLuint computeShader;
 
     // CAMERA
     Camera* camera;
@@ -63,15 +69,15 @@ private:
 
     // RENDER ALL OBJECTS AT ONCE
     // Triangles in scene
-    std::vector<Triangle*> triangles;
+    std::vector<std::shared_ptr<Triangle>> triangles;
     std::vector<GLfloat> triangleVertices;
     std::vector<GLint> triangleIndices;
     // Lines in scene
-    std::vector<Line*> lines;
+    std::vector<std::shared_ptr<Line>> lines;
     std::vector<GLfloat> lineVertices;
     std::vector<GLint> lineIndices;
     // Circles in scene
-    std::vector<Circle*> circles;
+    std::vector<std::shared_ptr<Circle>> circles;
     std::vector<GLfloat> circleVertices;
     std::vector<GLint> circleIndices;
 

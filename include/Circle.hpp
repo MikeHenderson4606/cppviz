@@ -15,18 +15,9 @@ public:
     ~Circle();
 
     // Creates the vertices for a circle
-    void createVertices();
+    void createVertices() override;
     // Changes the vertices of that circle
-    void updatePosition(const IPosition& u_position) override {
-        if (std::holds_alternative<CirclePosition>(u_position)) {
-            const CirclePosition& circlePos = std::get<CirclePosition>(u_position);
-            c_center = circlePos.center;
-
-            createVertices();
-        } else {
-            std::cerr << "Error: Invalid position type for Circle.\n";
-    }
-}
+    void updatePosition(const IPosition& u_position) override;
 
 private:
     // Center of the circle

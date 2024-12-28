@@ -16,8 +16,6 @@ class Application;
 
 class Simulation {
 public:
-    // Add the application to the simulation
-    virtual void AddApplicationToSimulation(Application* app) = 0;
     // Initial call of the simulation
     virtual void Render() = 0;
     // What to update on every subsequent step of the simulation

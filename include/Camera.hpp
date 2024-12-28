@@ -29,7 +29,7 @@ public:
 private:
     // Current position of the camera in world space
     glm::vec3 eyePosition = {
-        0.0f, 0.0f, 8.0f
+        0.0f, 0.0f, 10.0f
     };
     // Where the camera is currently looking
     glm::vec3 viewDirection = {

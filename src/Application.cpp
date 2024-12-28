@@ -183,8 +183,8 @@ GLuint CreateShaderProgram(const std::string& vertSource, const std::string& fra
     // Link our two shader programs together.
     // Consider this the equivalent of taking two .cpp files, and linking them into
     // one executable file.
-    glAttachShader(programObject,myVertexShader);
-    glAttachShader(programObject,myFragmentShader);
+    glAttachShader(programObject, myVertexShader);
+    glAttachShader(programObject, myFragmentShader);
     glLinkProgram(programObject);
 
     // Validate our program
@@ -192,13 +192,54 @@ GLuint CreateShaderProgram(const std::string& vertSource, const std::string& fra
 
     // Once our final program Object has been created, we can
     // detach and then delete our individual shaders.
-    glDetachShader(programObject,myVertexShader);
-    glDetachShader(programObject,myFragmentShader);
+    glDetachShader(programObject, myVertexShader);
+    glDetachShader(programObject, myFragmentShader);
     // Delete the individual shaders once we are done
     glDeleteShader(myVertexShader);
     glDeleteShader(myFragmentShader);
 
     return programObject;
+}
+
+// Creates a compute shader for more efficient runtime computation
+GLuint CreateComputeShader(const std::string& source) {
+    // Create shader
+    GLuint compute_shader = glCreateShader(GL_COMPUTE_SHADER);
+    const char* sourceStr = source.c_str();
+
+    // Compile shader
+    glShaderSource(compute_shader, 1, &sourceStr, NULL);
+    glCompileShader(compute_shader);
+
+    // Check for failures stored in a success variable
+    GLint success;
+    glGetShaderiv(compute_shader, GL_COMPILE_STATUS, &success);
+    if (!success) {
+        char infoLog[512];
+        glGetShaderInfoLog(compute_shader, 512, nullptr, infoLog);
+        std::cerr << "Compute Shader Compilation Failed:\n" << infoLog << std::endl;
+        return 0;
+    }
+
+    // Create a new program to house the compute shader
+    GLuint computeProgram = glCreateProgram();
+    glAttachShader(computeProgram, compute_shader);
+    glLinkProgram(computeProgram);
+
+    // Check for linking errors -- verify linking went according to plan
+    glGetProgramiv(computeProgram, GL_LINK_STATUS, &success);
+    if (!success) {
+        char infoLog[512];
+        glGetProgramInfoLog(computeProgram, 512, nullptr, infoLog);
+        std::cerr << "Shader Program Linking Failed:\n" << infoLog << std::endl;
+        return 0;
+    }
+
+    // Detach and delete shader
+    glDetachShader(computeProgram, compute_shader);
+    glDeleteShader(compute_shader);
+
+    return computeProgram;
 }
 
 // Create the default shader with position and color data
@@ -210,13 +251,15 @@ GLuint CreateDefaultShader() {
     return shader;
 }
 
+// Returns a reference of the compute shader
+GLuint& Application::getComputeShader() {
+    return computeShader;
+}
+
+// Pre loop
 void Application::PreLoop() {
     defaultShader = CreateDefaultShader();
-
-    // Render all simulations' initial states
-    for (Simulation* sim : simulations) {
-        sim->Render();
-    }
+    computeShader = CreateComputeShader(ConvertShaderToString("./shaders/force_compute.glsl"));
 
     // Debug shader creation
     GLint success;
@@ -231,18 +274,36 @@ void Application::PreLoop() {
     } else {
         std::cout << "Shader successfully created!" << std::endl;
     }
+
+    // Debug shader creation
+    glGetProgramiv(computeShader, GL_LINK_STATUS, &success);
+    if (!success) {
+        GLint logLength;
+        glGetProgramiv(computeShader, GL_INFO_LOG_LENGTH, &logLength);
+        std::vector<GLchar> log(logLength);
+        glGetProgramInfoLog(computeShader, logLength, &logLength, log.data());
+        std::cerr << "Shader program linking failed: " << log.data() << std::endl;
+        return;
+    } else {
+        std::cout << "Shader successfully created!" << std::endl;
+    }
+
+    // Render all simulations' initial states
+    for (Simulation* sim : simulations) {
+        sim->Render();
+    }
 }
 
-void Application::AddObject(IObject* object) {
-    if (Triangle* triangle = dynamic_cast<Triangle*>(object)) {
+void Application::AddObject(std::shared_ptr<IObject> object) {
+    if (std::shared_ptr<Triangle> triangle = std::dynamic_pointer_cast<Triangle>(object)) {
         // Add the triangle to the list
         triangles.push_back(triangle);
     }
-    else if (Line* line = dynamic_cast<Line*>(object)) {
+    else if (std::shared_ptr<Line> line = std::dynamic_pointer_cast<Line>(object)) {
         // Add the line to the list
         lines.push_back(line);
     }
-    else if (Circle* circle = dynamic_cast<Circle*>(object)) {
+    else if (std::shared_ptr<Circle> circle = std::dynamic_pointer_cast<Circle>(object)) {
         // Add the circle to the list
         circles.push_back(circle);
     }
@@ -317,7 +378,7 @@ void Application::Render() {
         lineVertices.insert(lineVertices.end(), lines.at(i)->vertices.begin(), lines.at(i)->vertices.end());
         // Add the appropriate indices to the list
         std::vector<GLuint> l_indices = lines.at(i)->ibo;
-        l_indices = AdjustIndices(l_indices, i * (lineVertices.size() / (6 * lines.size())));
+        l_indices = AdjustIndices(l_indices, round(i * 4));
         // Update indices
         lineIndices.insert(lineIndices.end(), l_indices.begin(), l_indices.end());
 
@@ -327,15 +388,16 @@ void Application::Render() {
 
     // Draw all circles at once
     // Compile all lines' vertices
-    for (int i = 0; i < circles.size(); i++) {
+    int count = 0;
+    for (const auto& circle: circles) {
         // Update vertices
-        circleVertices.insert(circleVertices.end(), circles.at(i)->vertices.begin(), circles.at(i)->vertices.end());
+        circleVertices.insert(circleVertices.end(), circle->vertices.begin(), circle->vertices.end());
         // Add the appropriate indices to the list
-        std::vector<GLuint> c_indices = circles.at(i)->ibo;
-        c_indices = AdjustIndices(c_indices, i * 33);
+        std::vector<GLuint> c_indices = circle->ibo;
+        c_indices = AdjustIndices(c_indices, count * 33);
         // Update indices
         circleIndices.insert(circleIndices.end(), c_indices.begin(), c_indices.end());
-
+        count++;
     } // We do this so that when we update the triangle vertices dynamically it will update in real time
     CreateDefaultIBO(vao, vbo, circleVertices, circleIndices);
     Draw(circleIndices);

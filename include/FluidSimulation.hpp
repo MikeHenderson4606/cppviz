@@ -38,17 +38,38 @@ public:
         int _id;
     };
 
-    FluidSimulation(int width, int height, GLfloat smoothingDistance);
+    FluidSimulation(double width, double height, GLfloat smoothingDistance, Application& u_app);
 
     ~FluidSimulation();
 
-    // Add the application instance
-    void AddApplicationToSimulation(Application* app);
+    /* HELPER METHODS */
 
     // Calculate the cell of the particle in question
-    int CalculatePosition(Particle particle);
+    int CalculatePosition(Particle& particle);
     // Create hash table for easy particle comparison
     void CreateHashTable();
+    // Used to calculate the shared pressure
+    GLfloat CalculateSharedPressure(GLfloat density1, GLfloat density2);
+    // The smoothing kernel
+    GLfloat smoothingKernel(GLfloat dist);
+    // Smoothing kernel derivative
+    GLfloat smoothingKernelDerivative(GLfloat dist);
+    // Calculating the density
+    GLfloat CalculateDensity(int index);
+    // Determine what cells need to be checked
+    std::vector<Cell*> CreateCellsToCheck(int index);
+    // Bind the compute buffers
+    void BindComputeBuffers();
+    // Using compute shders for optimization
+    void AssignComputeValues();
+    // Computes the force between two particles
+    void ComputeForce(int index, int sampleIndex, glm::vec3& pressureForce);
+    // Calculates the forces applied on a given particle
+    glm::vec3 CalculateForces(int index);
+    // Draw the borders of the simulation
+    void DrawBorders();
+
+    /* HELPER METHODS */
 
     /* UPDATE LOOP */
 
@@ -56,19 +77,21 @@ public:
     void HandleCollisions(int index);
     // Apply gravitational forces
     void ApplyGravitationalForces(int index);
+    // Apply the pressure forces
+    void ApplyPressureForces(int index);
     // Update positions of all particles
     void UpdatePositions(int index);
 
     /* UPDATE LOOP*/
     
     // Initial call
-    void Render();
+    void Render() override;
     // What is called on every update
-    void Update();
+    void Update() override;
 
 private:
     // The points as circles
-    std::vector<Circle*> points;
+    std::vector<std::shared_ptr<Circle>> points;
     // The particles' properties
     std::vector<Particle> particles;
     // Cells to efficiently calculate positions
@@ -92,9 +115,11 @@ private:
     // The smoothing distance between particles
     GLfloat smoothingDistance;
     // Target density
-    GLfloat targetDensity = 30;
+    GLfloat targetDensity = 20;
     // The instance of the application we are using
-    Application* app;
+    Application& app;
+    // Use buffers for data retrieval
+    GLuint predictedPositionBuffer, forceBuffer, densityBuffer, ubo;
 };
 
 

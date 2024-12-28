@@ -13,7 +13,7 @@ public:
     ~Triangle();
 
     // Creates the vertices for a triangle
-    void createVertices();
+    void createVertices() override;
     // Changes the vertices of that triangle
     void updatePosition(const IPosition& position) override {
         if (std::holds_alternative<TrianglePosition>(position)) {

@@ -10,15 +10,16 @@
 #include <string>
 #include <sstream>
 #include <fstream>
+#include <vector>
 
 class IObject {
 public:
 
     struct TrianglePosition {
         TrianglePosition(glm::vec3 u_pos1, glm::vec3 u_pos2, glm::vec3 u_pos3) {
-            u_pos1 = pos1;
-            u_pos2 = pos2;
-            u_pos3 = pos3;
+            pos1 = u_pos1;
+            pos2 = u_pos2;
+            pos3 = u_pos3;
         }
         glm::vec3 pos1;
         glm::vec3 pos2;
@@ -27,7 +28,7 @@ public:
 
     struct CirclePosition {
         CirclePosition(glm::vec3 u_center) {
-            u_center = center;
+            center = u_center;
         }
         glm::vec3 center;
     };

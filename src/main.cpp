@@ -99,29 +99,41 @@ int main(int argc, char* argv[]){
         0.1f,
         glm::vec3(0.2, 0.0, 0.6)
     );
-    IObject* line = new Line(
-        glm::vec3(-3.0f, 0.0f, 0.0f),
-        glm::vec3(3.0f, 0.0f, 0.0f),
+    std::shared_ptr<Line> line1 = std::make_shared<Line>(
+        glm::vec3(-3.0f, -3.0f, 0.0f),
+        glm::vec3(3.0f, -3.0f, 0.0f),
         glm::vec3(1.0f, 1.0f, 1.0f),
         0.05f
     );
-    IObject* line2 = new Line(
-        glm::vec3(0.0f, 3.0f, 0.0f),
-        glm::vec3(0.0f, -3.0f, 0.0f),
+    std::shared_ptr<Line> line2 = std::make_shared<Line>(
+        glm::vec3(3.0f, 3.0f, 0.0f),
+        glm::vec3(3.0f, -3.0f, 0.0f),
         glm::vec3(1.0f, 1.0f, 1.0f),
         0.05f
     );
-    // gApplication.AddObject(line);
+    std::shared_ptr<Line> line3 = std::make_shared<Line>(
+        glm::vec3(3.0f, 3.0f, 0.0f),
+        glm::vec3(-3.0f, 3.0f, 0.0f),
+        glm::vec3(1.0f, 1.0f, 1.0f),
+        0.05f
+    );
+    std::shared_ptr<Line> line4 = std::make_shared<Line>(
+        glm::vec3(-3.0f, 3.0f, 0.0f),
+        glm::vec3(-3.0f, -3.0f, 0.0f),
+        glm::vec3(1.0f, 1.0f, 1.0f),
+        0.05f
+    );
+    // gApplication.AddObject(line1);
     // gApplication.AddObject(line2);
+    // gApplication.AddObject(line3);
+    // gApplication.AddObject(line4);
     // gApplication.AddObject(circle);
     // gApplication.AddObject(circle2);
     // gApplication.AddObject(circle3);
     // gApplication.AddObject(circle4);
     // gApplication.AddObject(circle5);
-    Simulation* fluidSim = new FluidSimulation(2.4, 2.4, 0.5);
-    fluidSim->AddApplicationToSimulation(&gApplication);
+    Simulation* fluidSim = new FluidSimulation(2.4, 2.4, 0.4, gApplication);
     gApplication.AddSimulation(fluidSim);
-
 
     /* ---------------------------------------------------------------------------------------
     Keep them between these lines
